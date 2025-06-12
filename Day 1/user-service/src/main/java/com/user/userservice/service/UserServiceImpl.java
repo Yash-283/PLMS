@@ -1,60 +1,60 @@
 package com.user.userservice.service;
 
-
-
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.user.userservice.exception.UserExistsException;
 import com.user.userservice.exception.UserNotFoundException;
 import com.user.userservice.model.User;
+import com.user.userservice.repository.UserRepository;
 
 @Service
 public class UserServiceImpl implements UserService {
 
-    private Map<Integer, User> userDB = new HashMap<>();
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
-    public User addUser(User user) {
-        if (userDB.containsKey(user.getId())) {
-            throw new UserExistsException("User with ID " + user.getId() + " already exists.");
-        }
-        userDB.put(user.getId(), user);
-        return user;
+    public List<User> getUsers() {
+        return userRepository.getUsers();
     }
 
     @Override
-    public User updateUser(User user) {
-        if (!userDB.containsKey(user.getId())) {
+    public User getUserById(int id) throws UserNotFoundException {
+        Optional<User> user = userRepository.getUserById(id);
+        if (!user.isPresent()) {
+            throw new UserNotFoundException("User not found with ID: " + id);
+        }
+        return user.get();
+    }
+
+    @Override
+    public User addUser(User user) throws UserExistsException {
+        Optional<User> existing = userRepository.getUserById(user.getId());
+        if (existing.isPresent()) {
+            throw new UserExistsException("User already exists with ID: " + user.getId());
+        }
+        return userRepository.addUser(user);
+    }
+
+    @Override
+    public User updateUser(User user) throws UserNotFoundException {
+        Optional<User> existing = userRepository.getUserById(user.getId());
+        if (!existing.isPresent()) {
             throw new UserNotFoundException("User not found with ID: " + user.getId());
         }
-        userDB.put(user.getId(), user);
-        return user;
+        return userRepository.updateUser(user);
     }
 
     @Override
-    public User getUserById(int id) {
-        User user = userDB.get(id);
-        if (user == null) {
+    public boolean deleteUser(int id) throws UserNotFoundException {
+        Optional<User> existing = userRepository.getUserById(id);
+        if (!existing.isPresent()) {
             throw new UserNotFoundException("User not found with ID: " + id);
         }
-        return user;
-    }
-
-    @Override
-    public List<User> getAllUsers() {
-        return new ArrayList<>(userDB.values());
-    }
-
-    @Override
-    public void deleteUserById(int id) {
-        if (!userDB.containsKey(id)) {
-            throw new UserNotFoundException("User not found with ID: " + id);
-        }
-        userDB.remove(id);
+        return userRepository.deleteUser(id);
     }
 }
