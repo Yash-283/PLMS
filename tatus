@@ -1,0 +1,395 @@
+[33mcommit a8122f4021cd91d065b40ad1006a0b560cdf2add[m[33m ([m[1;32mspring-data-jpa[m[33m)[m
+Author: Yash-283 <yash@digi-safari.com>
+Date:   Fri Jun 13 16:29:00 2025 +0530
+
+    Removed loan-management-system-rest and added loanservice
+
+[1mdiff --git a/Day 1/.idea/vcs.xml b/Day 1/.idea/vcs.xml[m
+[1mnew file mode 100644[m
+[1mindex 0000000..6c0b863[m
+[1m--- /dev/null[m
+[1m+++ b/Day 1/.idea/vcs.xml[m	
+[36m@@ -0,0 +1,6 @@[m
+[32m+[m[32m<?xml version="1.0" encoding="UTF-8"?>[m
+[32m+[m[32m<project version="4">[m
+[32m+[m[32m  <component name="VcsDirectoryMappings">[m
+[32m+[m[32m    <mapping directory="$PROJECT_DIR$/.." vcs="Git" />[m
+[32m+[m[32m  </component>[m
+[32m+[m[32m</project>[m
+\ No newline at end of file[m
+[1mdiff --git a/Day 1/user-service/pom.xml b/Day 1/user-service/pom.xml[m
+[1mindex 8baabb0..9f22279 100644[m
+[1m--- a/Day 1/user-service/pom.xml[m	
+[1m+++ b/Day 1/user-service/pom.xml[m	
+[36m@@ -39,6 +39,20 @@[m
+ 			<artifactId>spring-boot-starter-web</artifactId>[m
+ 		</dependency>[m
+ [m
+[32m+[m		[32m<dependency>[m
+[32m+[m			[32m<groupId>org.springframework.boot</groupId>[m
+[32m+[m			[32m<artifactId>spring-boot-starter-data-jpa</artifactId>[m
+[32m+[m		[32m</dependency>[m
+[32m+[m		[32m<dependency>[m
+[32m+[m			[32m<groupId>org.springframework.boot</groupId>[m
+[32m+[m			[32m<artifactId>spring-boot-starter-validation</artifactId>[m
+[32m+[m		[32m</dependency>[m
+[32m+[m		[32m<dependency>[m
+[32m+[m			[32m<groupId>com.h2database</groupId>[m
+[32m+[m			[32m<artifactId>h2</artifactId>[m
+[32m+[m			[32m<scope>runtime</scope>[m
+[32m+[m		[32m</dependency>[m
+[32m+[m
+ 		<dependency>[m
+ 			<groupId>org.springframework.boot</groupId>[m
+ 			<artifactId>spring-boot-starter-test</artifactId>[m
+[1mdiff --git a/Day 1/user-service/src/main/java/com/user/userservice/controller/UserController.java b/Day 1/user-service/src/main/java/com/user/userservice/controller/UserController.java[m
+[1mindex 158cb37..aa84eca 100644[m
+[1m--- a/Day 1/user-service/src/main/java/com/user/userservice/controller/UserController.java[m	
+[1m+++ b/Day 1/user-service/src/main/java/com/user/userservice/controller/UserController.java[m	
+[36m@@ -1,62 +1,73 @@[m
+ package com.user.userservice.controller;[m
+ [m
+[31m-import org.springframework.beans.factory.annotation.Autowired;[m
+[31m-import org.springframework.http.ResponseEntity;[m
+[31m-import org.springframework.http.HttpStatus;[m
+[31m-import org.springframework.web.bind.annotation.*;[m
+[31m-[m
+[32m+[m[32mimport com.user.userservice.entity.User;[m
+ import com.user.userservice.exception.UserExistsException;[m
+ import com.user.userservice.exception.UserNotFoundException;[m
+[31m-import com.user.userservice.model.User;[m
+[31m-import com.user.userservice.service.UserServiceImpl;[m
+[31m-[m
+[31m-import java.util.List;[m
+[32m+[m[32mimport com.user.userservice.service.UserService;[m
+[32m+[m[32mimport org.springframework.http.HttpStatus;[m
+[32m+[m[32mimport org.springframework.http.ResponseEntity;[m
+[32m+[m[32mimport org.springframework.web.bind.annotation.*;[m
+ [m
+ @RestController[m
+[31m-@RequestMapping("/api/v1")[m
+[32m+[m[32m@RequestMapping("api/v1/users")[m
+ public class UserController {[m
+ [m
+[31m-    @Autowired[m
+[31m-    private UserServiceImpl userService;[m
+[32m+[m[32m    private final UserService userService;[m
+ [m
+[31m-    @PostMapping("/users")[m
+[31m-    public ResponseEntity<?> addUser(@RequestBody User user) {[m
+[32m+[m[32m    public UserController(UserService userService) {[m
+[32m+[m[32m        this.userService = userService;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    @PostMapping("/")[m
+[32m+[m[32m    public ResponseEntity<?> addUser(@RequestBody User user) throws UserExistsException {[m
+         try {[m
+[31m-            return ResponseEntity.status(HttpStatus.CREATED).body(userService.addUser(user));[m
+[32m+[m[32m            return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(user));[m
+         } catch (UserExistsException e) {[m
+[31m-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());[m
+[32m+[m[32m            throw e;[m
+[32m+[m[32m        } catch (Exception e) {[m
+[32m+[m[32m            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());[m
+         }[m
+     }[m
+ [m
+[31m-    @GetMapping("/users")[m
+[31m-    public ResponseEntity<?> getUsers() {[m
+[31m-        return ResponseEntity.ok(userService.getUsers());[m
+[32m+[m[32m    @GetMapping("/")[m
+[32m+[m[32m    public ResponseEntity<?> getAllUsers() {[m
+[32m+[m[32m        try {[m
+[32m+[m[32m            return ResponseEntity.ok(userService.getAllUsers());[m
+[32m+[m[32m        } catch (Exception e) {[m
+[32m+[m[32m            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());[m
+[32m+[m[32m        }[m
+     }[m
+ [m
+[31m-    @GetMapping("/users/{id}")[m
+[31m-    public ResponseEntity<?> getUserById(@PathVariable("id") int id) {[m
+[32m+[m[32m    @GetMapping("/{id}")[m
+[32m+[m[32m    public ResponseEntity<?> getUserById(@PathVariable("id") int id) throws UserNotFoundException {[m
+         try {[m
+             return ResponseEntity.ok(userService.getUserById(id));[m
+         } catch (UserNotFoundException e) {[m
+[31m-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());[m
+[32m+[m[32m            throw e;[m
+[32m+[m[32m        } catch (Exception e) {[m
+[32m+[m[32m            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());[m
+         }[m
+     }[m
+ [m
+[31m-    @PutMapping("/users")[m
+[31m-    public ResponseEntity<?> updateUser(@RequestBody User user) {[m
+[32m+[m[32m    @PutMapping("/")[m
+[32m+[m[32m    public ResponseEntity<?> updateUser(@RequestBody User user) throws UserNotFoundException {[m
+         try {[m
+             return ResponseEntity.ok(userService.updateUser(user));[m
+         } catch (UserNotFoundException e) {[m
+[31m-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());[m
+[32m+[m[32m            throw e;[m
+[32m+[m[32m        } catch (Exception e) {[m
+[32m+[m[32m            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());[m
+         }[m
+     }[m
+ [m
+[31m-    @DeleteMapping("/users/{id}")[m
+[32m+[m[32m    @DeleteMapping("/{id}")[m
+     public ResponseEntity<?> deleteUser(@PathVariable("id") int id) {[m
+         try {[m
+[31m-            return ResponseEntity.ok(userService.deleteUser(id));[m
+[32m+[m[32m            userService.deleteUser(id);[m
+[32m+[m[32m            return ResponseEntity.ok("User deleted successfully");[m
+         } catch (UserNotFoundException e) {[m
+             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());[m
+         }[m
+[32m+[m
+     }[m
+[31m-}[m
+\ No newline at end of file[m
+[32m+[m[32m}[m
+[1mdiff --git a/Day 1/user-service/src/main/java/com/user/userservice/entity/User.java b/Day 1/user-service/src/main/java/com/user/userservice/entity/User.java[m
+[1mindex 9e9543c..14857c2 100644[m
+[1m--- a/Day 1/user-service/src/main/java/com/user/userservice/entity/User.java[m	
+[1m+++ b/Day 1/user-service/src/main/java/com/user/userservice/entity/User.java[m	
+[36m@@ -1,16 +1,9 @@[m
+[31m-package com.user.userservice.model;[m
+[32m+[m[32mpackage com.user.userservice.entity;[m
+ [m
+ import jakarta.persistence.*;[m
+[31m-import lombok.AllArgsConstructor;[m
+[31m-import lombok.Data;[m
+[31m-import lombok.NoArgsConstructor;[m
+[31m-[m
+ [m
+ @Entity[m
+ @Table(name = "user_details")[m
+[31m-@Data[m
+[31m-@NoArgsConstructor[m
+[31m-@AllArgsConstructor[m
+ public class User {[m
+ [m
+     @Id[m
+[36m@@ -29,4 +22,35 @@[m [mpublic class User {[m
+ [m
+     @Column(name = "role")[m
+     private String role;[m
+[31m-}[m
+\ No newline at end of file[m
+[32m+[m
+[32m+[m[32m    public User() {}[m
+[32m+[m
+[32m+[m[32m    public User(int id, String name, String email, String password, String role) {[m
+[32m+[m[32m        this.id = id;[m
+[32m+[m[32m        this.name = name;[m
+[32m+[m[32m        this.email = email;[m
+[32m+[m[32m        this.password = password;[m
+[32m+[m[32m        this.role = role;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    // Getters & Setters[m
+[32m+[m[32m    public int getId() { return id; }[m
+[32m+[m
+[32m+[m[32m    public void setId(int id) { this.id = id; }[m
+[32m+[m
+[32m+[m[32m    public String getName() { return name; }[m
+[32m+[m
+[32m+[m[32m    public void setName(String name) { this.name = name; }[m
+[32m+[m
+[32m+[m[32m    public String getEmail() { return email; }[m
+[32m+[m
+[32m+[m[32m    public void setEmail(String email) { this.email = email; }[m
+[32m+[m
+[32m+[m[32m    public String getPassword() { return password; }[m
+[32m+[m
+[32m+[m[32m    public void setPassword(String password) { this.password = password; }[m
+[32m+[m
+[32m+[m[32m    public String getRole() { return role; }[m
+[32m+[m
+[32m+[m[32m    public void setRole(String role) { this.role = role; }[m
+[32m+[m[32m}[m
+[1mdiff --git a/Day 1/user-service/src/main/java/com/user/userservice/repository/UserRepository.java b/Day 1/user-service/src/main/java/com/user/userservice/repository/UserRepository.java[m
+[1mindex 832985d..f5e0496 100644[m
+[1m--- a/Day 1/user-service/src/main/java/com/user/userservice/repository/UserRepository.java[m	
+[1m+++ b/Day 1/user-service/src/main/java/com/user/userservice/repository/UserRepository.java[m	
+[36m@@ -1,37 +1,10 @@[m
+ package com.user.userservice.repository;[m
+ [m
+[31m-import java.util.ArrayList;[m
+[31m-import java.util.List;[m
+[31m-import java.util.Optional;[m
+[31m-[m
+[32m+[m[32mimport com.user.userservice.entity.User;[m
+[32m+[m[32mimport org.springframework.data.jpa.repository.JpaRepository;[m
+ import org.springframework.stereotype.Repository;[m
+[31m-import com.user.userservice.model.User;[m
+ [m
+ @Repository[m
+[31m-public class UserRepository {[m
+[31m-[m
+[31m-    private List<User> users = new ArrayList<>();[m
+[31m-[m
+[31m-    public List<User> getUsers() {[m
+[31m-        return users;[m
+[31m-    }[m
+[31m-[m
+[31m-    public Optional<User> getUserById(int id) {[m
+[31m-        return users.stream().filter(u -> u.getId() == id).findFirst();[m
+[31m-    }[m
+[31m-[m
+[31m-    public User addUser(User user) {[m
+[31m-        users.add(user);[m
+[31m-        return user;[m
+[31m-    }[m
+[31m-[m
+[31m-    public User updateUser(User user) {[m
+[31m-        int index = users.indexOf(getUserById(user.getId()).get());[m
+[31m-        users.set(index, user);[m
+[31m-        return user;[m
+[31m-    }[m
+[31m-[m
+[31m-    public boolean deleteUser(int id) {[m
+[31m-        return users.removeIf(u -> u.getId() == id);[m
+[31m-    }[m
+[32m+[m[32mpublic interface UserRepository extends JpaRepository<User, Integer> {[m
+[32m+[m[32m    // built-in CRUD methods available[m
+ }[m
+[1mdiff --git a/Day 1/user-service/src/main/java/com/user/userservice/service/UserService.java b/Day 1/user-service/src/main/java/com/user/userservice/service/UserService.java[m
+[1mindex 5976b07..bf08610 100644[m
+[1m--- a/Day 1/user-service/src/main/java/com/user/userservice/service/UserService.java[m	
+[1m+++ b/Day 1/user-service/src/main/java/com/user/userservice/service/UserService.java[m	
+[36m@@ -1,16 +1,15 @@[m
+ package com.user.userservice.service;[m
+ [m
+[31m-import java.util.List;[m
+[31m-[m
+[32m+[m[32mimport com.user.userservice.entity.User;[m
+ import com.user.userservice.exception.UserExistsException;[m
+ import com.user.userservice.exception.UserNotFoundException;[m
+[31m-import com.user.userservice.model.User;[m
+ [m
+[32m+[m[32mimport java.util.List;[m
+ [m
+ public interface UserService {[m
+[31m-    List<User> getUsers();[m
+[32m+[m[32m    User createUser(User user) throws UserExistsException;[m
+     User getUserById(int id) throws UserNotFoundException;[m
+[31m-    User addUser(User user) throws UserExistsException;[m
+[32m+[m[32m    List<User> getAllUsers();[m
+     User updateUser(User user) throws UserNotFoundException;[m
+[31m-    boolean deleteUser(int id) throws UserNotFoundException;[m
+[32m+[m[32m    void deleteUser(int id) throws UserNotFoundException;[m
+ }[m
+[1mdiff --git a/Day 1/user-service/src/main/java/com/user/userservice/service/UserServiceImpl.java b/Day 1/user-service/src/main/java/com/user/userservice/service/UserServiceImpl.java[m
+[1mindex 34486c9..6b376b9 100644[m
+[1m--- a/Day 1/user-service/src/main/java/com/user/userservice/service/UserServiceImpl.java[m	
+[1m+++ b/Day 1/user-service/src/main/java/com/user/userservice/service/UserServiceImpl.java[m	
+[36m@@ -1,60 +1,56 @@[m
+ package com.user.userservice.service;[m
+ [m
+[31m-import java.util.List;[m
+[31m-import java.util.Optional;[m
+[31m-[m
+[31m-import org.springframework.beans.factory.annotation.Autowired;[m
+[31m-import org.springframework.stereotype.Service;[m
+[31m-[m
+[32m+[m[32mimport com.user.userservice.entity.User;[m
+ import com.user.userservice.exception.UserExistsException;[m
+ import com.user.userservice.exception.UserNotFoundException;[m
+[31m-import com.user.userservice.model.User;[m
+ import com.user.userservice.repository.UserRepository;[m
+[32m+[m[32mimport org.springframework.stereotype.Service;[m
+[32m+[m
+[32m+[m[32mimport java.util.List;[m
+[32m+[m[32mimport java.util.Optional;[m
+ [m
+ @Service[m
+ public class UserServiceImpl implements UserService {[m
+ [m
+[31m-    @Autowired[m
+[31m-    private UserRepository userRepository;[m
+[32m+[m[32m    private final UserRepository userRepository;[m
+[32m+[m
+[32m+[m[32m    public UserServiceImpl(UserRepository userRepository) {[m
+[32m+[m[32m        this.userRepository = userRepository;[m
+[32m+[m[32m    }[m
+ [m
+     @Override[m
+[31m-    public List<User> getUsers() {[m
+[31m-        return userRepository.getUsers();[m
+[32m+[m[32m    public User createUser(User user) throws UserExistsException {[m
+[32m+[m[32m        Optional<User> existing = userRepository.findById(user.getId());[m
+[32m+[m[32m        if (existing.isPresent()) {[m
+[32m+[m[32m            throw new UserExistsException("User already exists with ID: " + user.getId());[m
+[32m+[m[32m        }[m
+[32m+[m[32m        return userRepository.save(user);[m
+     }[m
+ [m
+     @Override[m
+     public User getUserById(int id) throws UserNotFoundException {[m
+[31m-        Optional<User> user = userRepository.getUserById(id);[m
+[31m-        if (!user.isPresent()) {[m
+[31m-            throw new UserNotFoundException("User not found with ID: " + id);[m
+[31m-        }[m
+[31m-        return user.get();[m
+[32m+[m[32m        return userRepository.findById(id)[m
+[32m+[m[32m                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));[m
+     }[m
+ [m
+     @Override[m
+[31m-    public User addUser(User user) throws UserExistsException {[m
+[31m-        Optional<User> existing = userRepository.getUserById(user.getId());[m
+[31m-        if (existing.isPresent()) {[m
+[31m-            throw new UserExistsException("User already exists with ID: " + user.getId());[m
+[31m-        }[m
+[31m-        return userRepository.addUser(user);[m
+[32m+[m[32m    public List<User> getAllUsers() {[m
+[32m+[m[32m        return userRepository.findAll();[m
+     }[m
+ [m
+     @Override[m
+     public User updateUser(User user) throws UserNotFoundException {[m
+[31m-        Optional<User> existing = userRepository.getUserById(user.getId());[m
+[31m-        if (!existing.isPresent()) {[m
+[32m+[m[32m        if (!userRepository.existsById(user.getId())) {[m
+             throw new UserNotFoundException("User not found with ID: " + user.getId());[m
+         }[m
+[31m-        return userRepository.updateUser(user);[m
+[32m+[m[32m        return userRepository.save(user);[m
+     }[m
+ [m
+     @Override[m
+[31m-    public boolean deleteUser(int id) throws UserNotFoundException {[m
+[31m-        Optional<User> existing = userRepository.getUserById(id);[m
+[31m-        if (!existing.isPresent()) {[m
+[32m+[m[32m    public void deleteUser(int id) throws UserNotFoundException {[m
+[32m+[m[32m        if (!userRepository.existsById(id)) {[m
+             throw new UserNotFoundException("User not found with ID: " + id);[m
+         }[m
+[31m-        return userRepository.deleteUser(id);[m
+[32m+[m[32m        userRepository.deleteById(id);[m
+     }[m
+[31m-}[m
+\ No newline at end of file[m
+[32m+[m[32m}[m
+[1mdiff --git a/Day 1/user-service/src/main/resources/application.properties b/Day 1/user-service/src/main/resources/application.properties[m
+[1mindex 9efc2f4..ab609fb 100644[m
+[1m--- a/Day 1/user-service/src/main/resources/application.properties[m	
+[1m+++ b/Day 1/user-service/src/main/resources/application.properties[m	
+[36m@@ -1,3 +1,14 @@[m
+ spring.application.name=user-service[m
+ server.port=8082[m
+ management.endpoints.web.exposure.include=*[m
+[32m+[m
+[32m+[m[32mspring.datasource.url=jdbc:h2:mem:userdb[m
+[32m+[m[32mspring.datasource.driverClassName=org.h2.Driver[m
+[32m+[m[32mspring.datasource.username=sa[m
+[32m+[m[32mspring.datasource.password=[m
+[32m+[m
+[32m+[m[32mspring.jpa.database-platform=org.hibernate.dialect.H2Dialect[m
+[32m+[m[32mspring.jpa.hibernate.ddl-auto=update[m
+[32m+[m
+[32m+[m[32mspring.h2.console.enabled=true[m
+[32m+[m[32mspring.h2.console.path=/h2-console[m
+\ No newline at end of file[m
