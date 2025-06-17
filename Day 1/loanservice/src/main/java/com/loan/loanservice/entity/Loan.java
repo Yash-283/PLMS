@@ -1,22 +1,24 @@
-package com.loan.loanservice.model;
+package com.loan.loanservice.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.util.Date;
-import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
+@Document(collection = "loan_details")
 public class Loan {
-    private int id;
+
+    @Id
+    private String id;
+
     private String applicantName;
     private String applicantEmail;
     private long applicantContactNo;
     private double loanAmount;
-
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    private Date appliedDate;
+    private int tenure;
     private String status;
 }

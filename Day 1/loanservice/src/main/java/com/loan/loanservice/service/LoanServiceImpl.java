@@ -1,57 +1,57 @@
 package com.loan.loanservice.service;
 
+import com.loan.loanservice.entity.Loan;
 import com.loan.loanservice.exception.LoanExistsException;
 import com.loan.loanservice.exception.LoanNotFoundException;
-import com.loan.loanservice.model.Loan;
-
 import com.loan.loanservice.repository.LoanRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class LoanServiceImpl implements LoanService {
 
-    @Autowired
-    private LoanRepository loanRepository;
+    private final LoanRepository loanRepository;
 
-    @Override
-    public List<Loan> getLoans() {
-        return loanRepository.getLoans();
+    public LoanServiceImpl(LoanRepository loanRepository) {
+        this.loanRepository = loanRepository;
     }
 
     @Override
-    public Loan getLoanById(int id) throws LoanNotFoundException {
-        return loanRepository.getLoanById(id)
-                .orElseThrow(() -> new LoanNotFoundException("Loan Not Found With this Id :" + id));
-    }
-
-    @Override
-    public Loan addLoan(Loan loan) throws LoanExistsException {
-        Optional<Loan> existing = loanRepository.getLoanById(loan.getId());
-        if (existing.isPresent()) {
-            throw new LoanExistsException("Loan Already Exists With this Id :" + loan.getId());
+    public Loan createLoan(Loan loan) throws LoanExistsException {
+        Optional<Loan> existingLoan = loanRepository.findById(loan.getId());
+        if (existingLoan.isPresent()) {
+            throw new LoanExistsException("Loan already exists with id " + loan.getId());
         }
         loan.setStatus("Pending");
-        return loanRepository.addLoan(loan);
+        return loanRepository.save(loan);
+    }
+
+    @Override
+    public Loan getLoanById(String id) throws LoanNotFoundException {
+        return loanRepository.findById(id)
+                .orElseThrow(() -> new LoanNotFoundException("Loan not found with id " + id));
+    }
+
+    @Override
+    public List<Loan> getAllLoans() {
+        return loanRepository.findAll();
     }
 
     @Override
     public Loan updateLoan(Loan loan) throws LoanNotFoundException {
-        Optional<Loan> existing = loanRepository.getLoanById(loan.getId());
-        if (existing.isEmpty()) {
-            throw new LoanNotFoundException("Loan Not Found With this Id :" + loan.getId());
+        if (!loanRepository.existsById(loan.getId())) {
+            throw new LoanNotFoundException("Loan not found with id " + loan.getId());
         }
-        return loanRepository.updateLoan(loan);
+        return loanRepository.save(loan);
     }
 
     @Override
-    public boolean deleteLoan(int id) throws LoanNotFoundException {
-        Optional<Loan> existing = loanRepository.getLoanById(id);
-        if (existing.isEmpty()) {
-            throw new LoanNotFoundException("Loan Not Found With this Id :" + id);
+    public void deleteLoan(String id) throws LoanNotFoundException {
+        if (!loanRepository.existsById(id)) {
+            throw new LoanNotFoundException("Loan not found with id " + id);
         }
-        return loanRepository.deleteLoan(id);
+        loanRepository.deleteById(id);
     }
 }

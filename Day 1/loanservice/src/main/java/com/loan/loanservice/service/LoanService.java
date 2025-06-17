@@ -1,15 +1,16 @@
 package com.loan.loanservice.service;
 
+import com.loan.loanservice.entity.Loan;
 import com.loan.loanservice.exception.LoanExistsException;
 import com.loan.loanservice.exception.LoanNotFoundException;
-import com.loan.loanservice.model.Loan;
 
 import java.util.List;
 
 public interface LoanService {
-    List<Loan> getLoans();
-    Loan getLoanById(int id) throws LoanNotFoundException;
-    Loan addLoan(Loan loan) throws LoanExistsException;
+
+    Loan createLoan(Loan loan) throws LoanExistsException;
+    Loan getLoanById(String id) throws LoanNotFoundException;
+    List<Loan> getAllLoans();
     Loan updateLoan(Loan loan) throws LoanNotFoundException;
-    boolean deleteLoan(int id) throws LoanNotFoundException;
+    void deleteLoan(String id) throws LoanNotFoundException;
 }

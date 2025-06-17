@@ -2,58 +2,75 @@ package com.loan.loanservice.controller;
 
 import com.loan.loanservice.exception.LoanExistsException;
 import com.loan.loanservice.exception.LoanNotFoundException;
-import com.loan.loanservice.model.Loan;
+import com.loan.loanservice.entity.Loan;
 
-import com.loan.loanservice.service.LoanServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.*;
+import com.loan.loanservice.service.LoanService;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/loans") // 👈 Put "/loans" here
 public class LoanController {
 
-    @Autowired
-    private LoanServiceImpl loanService;
+    private final LoanService loanService;
 
-    @PostMapping("/loans")
-    public ResponseEntity<?> addLoan(@RequestBody Loan loan) {
+    public LoanController(LoanService loanService) {
+        this.loanService = loanService;
+    }
+
+    @PostMapping
+    public ResponseEntity<?> addLoan(@RequestBody Loan loan) throws LoanExistsException {
         try {
-            return ResponseEntity.status(HttpStatus.CREATED).body(loanService.addLoan(loan));
+            return ResponseEntity.status(HttpStatus.CREATED).body(loanService.createLoan(loan));
         } catch (LoanExistsException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
-    @GetMapping("/loans")
-    public ResponseEntity<?> getLoans() {
-        return ResponseEntity.ok(loanService.getLoans());
+    @GetMapping
+    public ResponseEntity<?> getAllLoans() {
+        try {
+            return ResponseEntity.ok(loanService.getAllLoans());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 
-    @GetMapping("/loans/{id}")
-    public ResponseEntity<?> getLoanById(@PathVariable int id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getLoanById(@PathVariable("id") String id) throws LoanNotFoundException {
         try {
             return ResponseEntity.ok(loanService.getLoanById(id));
         } catch (LoanNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
-    @PutMapping("/loans")
-    public ResponseEntity<?> updateLoan(@RequestBody Loan loan) {
+    @PutMapping
+    public ResponseEntity<?> updateLoan(@RequestBody Loan loan) throws LoanNotFoundException {
         try {
             return ResponseEntity.ok(loanService.updateLoan(loan));
         } catch (LoanNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
-    @DeleteMapping("/loans/{id}")
-    public ResponseEntity<?> deleteLoan(@PathVariable int id) {
+    @DeleteMapping
+    public ResponseEntity<?> deleteLoan(@RequestParam("id") String id) throws LoanNotFoundException {
         try {
-            return ResponseEntity.ok(loanService.deleteLoan(id));
+            loanService.deleteLoan(id);
+            return ResponseEntity.ok("Loan deleted successfully");
         } catch (LoanNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 }
