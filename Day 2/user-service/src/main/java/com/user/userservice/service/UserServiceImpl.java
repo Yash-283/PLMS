@@ -4,8 +4,13 @@ import com.user.userservice.entity.User;
 import com.user.userservice.exception.UserExistsException;
 import com.user.userservice.exception.UserNotFoundException;
 import com.user.userservice.repository.UserRepository;
-import org.springframework.stereotype.Service;
+import com.user.userservice.dto.Loan;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,9 +18,12 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    @Autowired
+    private final RestTemplate restTemplate;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, RestTemplate restTemplate) {
         this.userRepository = userRepository;
+        this.restTemplate = restTemplate;
     }
 
     @Override
@@ -43,7 +51,7 @@ public class UserServiceImpl implements UserService {
         if (!userRepository.existsById(user.getId())) {
             throw new UserNotFoundException("User not found with id " + user.getId());
         }
-        return userRepository.save(user);  // same logic as LoanServiceImpl
+        return userRepository.save(user);
     }
 
     @Override
@@ -52,5 +60,11 @@ public class UserServiceImpl implements UserService {
             throw new UserNotFoundException("User not found with id: " + id);
         }
         userRepository.deleteById(id);
+    }
+
+
+    public List<Loan> fetchAllLoansFromLoanService() {
+        Loan[] loans = restTemplate.getForObject("http://loanservice/api/v1/loans", Loan[].class);
+        return Arrays.asList(loans);
     }
 }

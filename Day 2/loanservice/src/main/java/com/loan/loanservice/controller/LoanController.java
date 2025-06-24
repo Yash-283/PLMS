@@ -1,23 +1,34 @@
 package com.loan.loanservice.controller;
 
+import com.loan.loanservice.entity.Loan;
 import com.loan.loanservice.exception.LoanExistsException;
 import com.loan.loanservice.exception.LoanNotFoundException;
-import com.loan.loanservice.entity.Loan;
-
 import com.loan.loanservice.service.LoanService;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/api/v1/loans") // 👈 Put "/loans" here
+@RequestMapping("/api/v1/loans")
 public class LoanController {
 
     private final LoanService loanService;
 
     public LoanController(LoanService loanService) {
         this.loanService = loanService;
+    }
+
+    @Value("${server.port}")
+    private String port;
+
+    @GetMapping
+    public ResponseEntity<?> getAllLoans() {
+        List<Loan> loans = loanService.getAllLoans();
+        System.out.println("Request served by loan-service running on port: " + port);
+        return ResponseEntity.ok(loans);
     }
 
     @PostMapping
@@ -31,14 +42,7 @@ public class LoanController {
         }
     }
 
-    @GetMapping
-    public ResponseEntity<?> getAllLoans() {
-        try {
-            return ResponseEntity.ok(loanService.getAllLoans());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
-    }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getLoanById(@PathVariable("id") String id) throws LoanNotFoundException {
@@ -74,3 +78,4 @@ public class LoanController {
         }
     }
 }
+
