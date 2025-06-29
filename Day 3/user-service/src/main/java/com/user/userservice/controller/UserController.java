@@ -52,11 +52,7 @@ public class UserController {
 
     @GetMapping("/loans")
     public ResponseEntity<?> getLoansFromLoanService() {
-        try {
-            return ResponseEntity.ok(userService.fetchAllLoansFromLoanService());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching loans: " + e.getMessage());
-        }
+        return userService.fetchAllLoansFromLoanService();
     }
 
     @PutMapping

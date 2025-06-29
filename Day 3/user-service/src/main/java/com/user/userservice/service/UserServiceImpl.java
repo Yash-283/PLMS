@@ -6,18 +6,24 @@ import com.user.userservice.exception.UserNotFoundException;
 import com.user.userservice.repository.UserRepository;
 import com.user.userservice.dto.Loan;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import io.github.resilience4j.retry.annotation.Retry;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+
     @Autowired
     private final RestTemplate restTemplate;
 
@@ -63,8 +69,19 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    public List<Loan> fetchAllLoansFromLoanService() {
+    @CircuitBreaker(name = "loanService", fallbackMethod = "loanServiceFallback")
+    @Retry(name = "loanService")
+    @Override
+    public ResponseEntity<?> fetchAllLoansFromLoanService() {
         Loan[] loans = restTemplate.getForObject("http://loanservice/api/v1/loans", Loan[].class);
-        return Arrays.asList(loans);
+        return ResponseEntity.ok(Arrays.asList(loans));
     }
+
+    public ResponseEntity<?> loanServiceFallback(Exception e) {
+        return ResponseEntity
+                .status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(Map.of("message", "Loan Service is currently unavailable. Please try again later."));
+    }
+
+
 }

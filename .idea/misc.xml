@@ -11,6 +11,11 @@
         <option value="$PROJECT_DIR$/Day 2/eureka-server/pom.xml" />
         <option value="$PROJECT_DIR$/Day 2/loanservice/pom.xml" />
         <option value="$PROJECT_DIR$/Day 2/user-service/pom.xml" />
+        <option value="$PROJECT_DIR$/Day 2/api-gateway/pom.xml" />
+        <option value="$PROJECT_DIR$/Day 3/user-service/pom.xml" />
+        <option value="$PROJECT_DIR$/Day 3/loanservice/pom.xml" />
+        <option value="$PROJECT_DIR$/Day 3/eureka-server/pom.xml" />
+        <option value="$PROJECT_DIR$/Day 3/api-gateway/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

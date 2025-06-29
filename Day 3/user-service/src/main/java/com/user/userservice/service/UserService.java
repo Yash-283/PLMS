@@ -6,8 +6,7 @@ import com.user.userservice.dto.Loan;
 import com.user.userservice.exception.UserExistsException;
 import com.user.userservice.exception.UserNotFoundException;
 import com.user.userservice.entity.User;
-
-
+import org.springframework.http.ResponseEntity;
 
 
 public interface UserService {
@@ -17,5 +16,7 @@ public interface UserService {
     User updateUser(User user) throws UserNotFoundException;
     void deleteUser(int id) throws UserNotFoundException;
 
-    List<Loan> fetchAllLoansFromLoanService();
+
+    ResponseEntity<?> fetchAllLoansFromLoanService();
+
 }
