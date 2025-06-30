@@ -9,5 +9,10 @@
     <file url="file://$PROJECT_DIR$/Day 3/eureka-server/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Day 3/loanservice/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Day 3/user-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Day 4/api-gateway/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Day 4/eureka-server/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Day 4/loanservice/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Day 4/notification-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Day 4/user-service/src/main/java" charset="UTF-8" />
   </component>
 </project>
