@@ -27,6 +27,13 @@
         <option value="$PROJECT_DIR$/Day 4 (Module 8)/loanservice/pom.xml" />
         <option value="$PROJECT_DIR$/Day 4 (Module 8)/notification-service/pom.xml" />
         <option value="$PROJECT_DIR$/Day 4 (Module 8)/user-service/pom.xml" />
+        <option value="$PROJECT_DIR$/Day 5 (Module 10)/api-gateway/pom.xml" />
+        <option value="$PROJECT_DIR$/Day 5 (Module 10)/config-server/pom.xml" />
+        <option value="$PROJECT_DIR$/Day 5 (Module 10)/eureka-server/pom.xml" />
+        <option value="$PROJECT_DIR$/Day 5 (Module 10)/loanservice/pom.xml" />
+        <option value="$PROJECT_DIR$/Day 5 (Module 10)/notification-service/pom.xml" />
+        <option value="$PROJECT_DIR$/Day 5 (Module 10)/user-service/pom.xml" />
+        <option value="$PROJECT_DIR$/Day 5 (Module 10)/auth-service/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

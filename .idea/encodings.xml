@@ -20,5 +20,12 @@
     <file url="file://$PROJECT_DIR$/Day 4/loanservice/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Day 4/notification-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Day 4/user-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Day 5 (Module 10)/api-gateway/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Day 5 (Module 10)/auth-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Day 5 (Module 10)/config-server/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Day 5 (Module 10)/eureka-server/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Day 5 (Module 10)/loanservice/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Day 5 (Module 10)/notification-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Day 5 (Module 10)/user-service/src/main/java" charset="UTF-8" />
   </component>
 </project>
